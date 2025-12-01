@@ -7,8 +7,8 @@ const students = [
   "Kwekowe Chinemerem Clinton",
   "Okeh Kelvin Chinecherem",
   "Okeke Nzube Peter",
-  "Chkwu Theophilus Chika",
-  "Anayochukwu Kemble kamsi",
+  "Chukwu Theophilus Chika",
+  "Anayochukwu Kemble Kamsi",
   "Iheanyi Valatine Kelechi",
   "Ezenwa Daniel Chimdike",
 ];

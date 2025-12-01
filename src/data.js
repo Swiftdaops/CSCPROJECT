@@ -1,15 +1,16 @@
 // central student data for the app
 const students = [
-  "Odilora Chukwunonyelum",
-  "Oguma Joseph Chidubem",
-  "Angus Emmanuel",
-  "Obasi Ogbonna Augustine",
-  "Ejiofor Kosisochukwu Valentine",
-  "Daniel Jonathan Yunana",
+  "Chijioke Chigozie Kenneth",
+  "Chioma Ngene Vivian",
   "Obi Tobechukwu Favour",
   "Onuora Chukwuebuka Charles",
-  "Omeje iIkechukwu Harrison",
-  "Ottaah Chizaram Innocent",
+  "Kwekowe Chinemerem Clinton",
+  "Okeh Kelvin Chinecherem",
+  "Okeke Nzube Peter",
+  "Chkwu Theophilus Chika",
+  "Anayochukwu Kemble kamsi",
+  "Iheanyi Valatine Kelechi",
+  "Ezenwa Daniel Chimdike",
 ];
 
 export default students;

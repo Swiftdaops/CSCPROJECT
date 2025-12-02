@@ -11,6 +11,8 @@ const students = [
   "Anayochukwu Kemble Kamsi",
   "Iheanyi Valatine Kelechi",
   "Ezenwa Daniel Chimdike",
+  "Obi Daniel",
+  
 ];
 
 export default students;

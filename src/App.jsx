@@ -4,6 +4,8 @@ import ISOHistoryCard from "./components/ISOHistoryCard";
 import ISORequirements from "./components/ISORequirements";
 import PasswordAssessmentTool from "./components/PasswordAssessmentTool";
 import Footer from "./components/Footer";
+import Limitation from "./components/Limitations";
+import DefinitionOfTerms from "./components/DefinitionOfTerms";
 import studentsData from "./data";
 import { ThemeProvider } from "./components/theme-provider";
 
@@ -22,6 +24,12 @@ function App() {
           <div>
             <PasswordAssessmentTool />
           </div>
+        </div>
+
+        {/* Limitations (first) and Definition of Terms (first ten definitions) */}
+        <div className="px-6 sm:px-10 lg:px-20">
+          <Limitation />
+          <DefinitionOfTerms />
         </div>
 
         {/* Footer with the project authors/students */}

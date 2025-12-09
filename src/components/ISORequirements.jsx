@@ -45,15 +45,22 @@ const rules = [
 ];
 
 export default function ISORequirements() {
-  // apply themed classes to elements marked in this section
   useThemedClasses();
+
   return (
     <section className="grid gap-6">
       <div className="mb-2">
         <p className="text-xs uppercase tracking-wider">
           Password Requirements
         </p>
+
         <h2 className="text-2xl font-semibold">Key ISO-aligned Rules</h2>
+
+        {/* INLINE APA CITATION */}
+        <p className="text-xs mt-1 opacity-70">
+          Based on authentication guidance provided in ISO/IEC 27002:2022 
+          (International Organization for Standardization, 2022).
+        </p>
       </div>
 
       <div className="grid gap-6">
@@ -74,12 +81,8 @@ export default function ISORequirements() {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-2">
-                {rule.title}
-              </h3>
-              <p className="text-sm leading-relaxed">
-                {rule.reason}
-              </p>
+              <h3 className="text-lg font-semibold mb-2">{rule.title}</h3>
+              <p className="text-sm leading-relaxed">{rule.reason}</p>
             </div>
           </motion.div>
         ))}

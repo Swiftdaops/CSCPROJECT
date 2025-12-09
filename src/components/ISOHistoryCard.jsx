@@ -6,13 +6,14 @@ import useThemedClasses from "../hooks/useThemedClasses";
 export default function ISOHistoryCard() {
   // apply themed classes to elements marked in this card
   useThemedClasses();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
       viewport={{ once: true, amount: 0.2 }}
-      className="light rounded-3xl border shadow-xl p-8 backdrop-blur "
+      className="light rounded-3xl border shadow-xl p-8 backdrop-blur"
       data-light="theme-light text-stone-900"
       data-dark="theme-dark text-white"
     >
@@ -25,16 +26,18 @@ export default function ISOHistoryCard() {
         1947 to unify global standards in technology, safety, quality, and
         security. As digital systems evolved, ISO introduced the{" "}
         <span className="font-semibold">ISO/IEC 27000 series</span>, which set
-        global guidelines for cybersecurity.
+        global guidelines for cybersecurity (International Organization for
+        Standardization, 2018).
       </p>
 
       <p className="mt-3 leading-relaxed">
         Within these standards, password creation and authentication rules were
         defined to help organizations protect users from brute-force attacks,
-        credential theft, data breaches, and poor security practices.
+        credential theft, data breaches, and poor security practices
+        (International Organization for Standardization, 2022).
       </p>
 
-      <p className="mt-3">
+      <p className="mt-3 leading-relaxed">
         Today, ISO password guidelines remain the backbone for secure digital
         authentication across banks, apps, government systems, and cloud
         platforms.

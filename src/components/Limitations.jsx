@@ -11,7 +11,7 @@ export default function Limitation() {
         data-light="theme-light text-stone-900"
         data-dark="theme-dark text-white"
       >
-        <h2 className="text-2xl font-bold mb-4">1.6 Limitations of the Study</h2>
+        <h2 className="text-2xl font-bold mb-4"> Limitations of the Study</h2>
 
         <div className="space-y-4 leading-relaxed text-sm sm:text-base">
           <p>

@@ -28,7 +28,7 @@ export default function DefinitionOfTerms() {
         data-light="theme-light text-stone-900"
         data-dark="theme-dark text-white"
       >
-        <h2 className="text-2xl font-bold mb-4">1.7 Definition of Terms</h2>
+        <h2 className="text-2xl font-bold mb-4"> Definition of Terms</h2>
 
         <p className="text-sm sm:text-base mb-4">
           The following terms are defined to provide clarity and ensure proper

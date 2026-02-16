@@ -1,22 +1,30 @@
-// components/PasswordAssessmentTool.jsx
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import useThemedClasses from "../hooks/useThemedClasses";
-import { Eye, EyeOff, CopyPlus, CopyCheck } from "lucide-react";
+import { Eye, EyeOff, CopyPlus, CopyCheck, ShieldCheck, Zap, Clock } from "lucide-react";
+import zxcvbn from 'zxcvbn';
+
+// Mock hook based on your provided code
+const useThemedClasses = () => {}; 
 
 export default function PasswordAssessmentTool() {
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [checked, setChecked] = useState({
     hashedEnv: false,
     noReuse: false,
     mfa: false,
   });
 
-  // apply themed classes to marked elements inside this component
   useThemedClasses();
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [copied, setCopied] = useState(false);
+  // Modern Entropy Calculation using zxcvbn
+  const assessment = useMemo(() => {
+    return zxcvbn(password);
+  }, [password]);
+
+  const allChecklist = checked.hashedEnv && checked.noReuse && checked.mfa;
+  const isISOCompliant = password.length >= 12 && assessment.score >= 3;
 
   const toggleShow = () => setShowPassword((s) => !s);
 
@@ -26,218 +34,163 @@ export default function PasswordAssessmentTool() {
       await navigator.clipboard.writeText(password);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch (err) {
-      // ignore
-    }
+    } catch (err) {}
   };
 
-  const meetsLength = password.length >= 12;
-  const hasUpper = /[A-Z]/.test(password);
-  const hasLower = /[a-z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
-  const hasSymbol = /[^A-Za-z0-9]/.test(password);
-  const notCommon = !/(password|12345|qwerty|admin)/i.test(password);
-
-  const allChecklist =
-    checked.hashedEnv && checked.noReuse && checked.mfa;
-
-  const isStrong =
-    meetsLength && hasUpper && hasLower && hasNumber && hasSymbol && notCommon;
+  // Helper for strength color
+  const getStrengthColor = (score) => {
+    const colors = ["bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-blue-500", "bg-emerald-500"];
+    return colors[score] || "bg-stone-200";
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
-      className="light rounded-3xl border border-stone-200 shadow-xl p-8 backdrop-blur space-y-6"
+      className="light rounded-3xl border border-stone-200 shadow-xl p-8 backdrop-blur space-y-8 max-w-lg mx-auto"
       data-light="theme-light text-stone-900 bg-white/70"
       data-dark="theme-dark text-white bg-stone-900/70"
     >
-      <h2 className="text-xl font-semibold">Password Strength Assessment</h2>
+      <header className="space-y-1">
+        <h2 className="text-2xl font-semibold tracking-tight">Security Assessment</h2>
+        <p className="text-sm text-stone-500">ISO/IEC 27002 & NIST Entropy Standards</p>
+      </header>
 
-      {/* Pre-checklist */}
-      <div className="space-y-3">
-        <p className="text-sm font-medium">
-          Before setting a password, confirm these security standards:
-        </p>
+      {/* 1. Pre-Checklist: Regulatory Compliance */}
+      <div className="space-y-4 bg-stone-50 p-5 rounded-2xl border border-stone-100">
+        <div className="flex items-center gap-2 text-stone-700 mb-2">
+          <ShieldCheck className="h-4 w-4" />
+          <span className="text-xs font-bold uppercase tracking-wider">Baseline Requirements</span>
+        </div>
 
-        <label className="flex items-center gap-3 text-sm">
-          <input
-            type="checkbox"
-            checked={checked.hashedEnv}
-            onChange={() =>
-              setChecked((p) => ({ ...p, hashedEnv: !p.hashedEnv }))
-            }
+        <div className="space-y-3">
+          <ComplianceCheck 
+            label="Storage: Hashed & Salted (No Plaintext)" 
+            checked={checked.hashedEnv} 
+            onChange={() => setChecked(p => ({...p, hashedEnv: !p.hashedEnv}))}
           />
-          My .env or server password is hashed (not plain text).
-        </label>
-
-        <label className="flex items-center gap-3 text-sm">
-          <input
-            type="checkbox"
-            checked={checked.noReuse}
-            onChange={() =>
-              setChecked((p) => ({ ...p, noReuse: !p.noReuse }))
-            }
+          <ComplianceCheck 
+            label="Uniqueness: No Credential Reuse" 
+            checked={checked.noReuse} 
+            onChange={() => setChecked(p => ({...p, noReuse: !p.noReuse}))}
           />
-          I am not reusing a password from another website.
-        </label>
-
-        <label className="flex items-center gap-3 text-sm">
-          <input
-            type="checkbox"
-            checked={checked.mfa}
-            onChange={() =>
-              setChecked((p) => ({ ...p, mfa: !p.mfa }))
-            }
+          <ComplianceCheck 
+            label="Protection: MFA Policy Active" 
+            checked={checked.mfa} 
+            onChange={() => setChecked(p => ({...p, mfa: !p.mfa}))}
           />
-          MFA is enabled for this account/system.
-        </label>
+        </div>
       </div>
 
-      {/* Password Input */}
-      <div className="flex flex-col gap-2">
+      {/* 2. Password Input Section */}
+      <div className="space-y-4">
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Enter secure password..."
+            className={`w-full border-2 rounded-2xl px-5 py-4 transition-all duration-300 ${!allChecklist ? "opacity-50 cursor-not-allowed grayscale" : "focus:ring-4 focus:ring-blue-500/10 border-stone-200"}`}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={!allChecklist}
+          />
+          
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2">
+            <IconButton onClick={toggleShow} disabled={!allChecklist}>
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </IconButton>
+            <IconButton onClick={copyToClipboard} disabled={!allChecklist} success={copied}>
+              {copied ? <CopyCheck size={18} /> : <CopyPlus size={18} />}
+            </IconButton>
+          </div>
+        </div>
+
+        {/* 3. Real-time Entropy Metrics */}
         <AnimatePresence>
-          {!allChecklist && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              transition={{ duration: 0.28, ease: "easeOut" }}
-              className="rounded-lg border border-red-300/40 bg-red-600/6 text-red-700 p-3 mb-2"
+          {password.length > 0 && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }} 
+              animate={{ opacity: 1, height: "auto" }}
+              className="space-y-5 pt-2"
             >
-              <div className="flex items-start gap-3">
-                <div className="shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.72-1.36 3.485 0l5.516 9.8c.75 1.333-.213 2.992-1.742 2.992H4.483c-1.53 0-2.492-1.66-1.742-2.992l5.516-9.8zM11 13a1 1 0 10-2 0 1 1 0 002 0zm-1-8a1 1 0 00-.993.883L8.8 8h2.4l-.207-2.117A1 1 0 0010 5z" clipRule="evenodd" />
-                  </svg>
+              {/* Strength Bar */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-medium px-1">
+                  <span>Entropy Score</span>
+                  <span>{["Very Weak", "Weak", "Fair", "Strong", "ISO Standard"][assessment.score]}</span>
                 </div>
-                <div>
-                  <p className="font-semibold text-sm">Please confirm security checks</p>
-                  <p className="text-xs text-red-600/90">You must complete all pre-checklist items before entering a password.</p>
+                <div className="h-1.5 w-full bg-stone-100 rounded-full overflow-hidden flex gap-1">
+                   {[0,1,2,3].map((step) => (
+                     <div key={step} className={`h-full flex-1 transition-colors duration-500 ${assessment.score > step ? getStrengthColor(assessment.score) : 'bg-stone-200'}`} />
+                   ))}
                 </div>
+              </div>
+
+              {/* Heuristic Data Points */}
+              <div className="grid grid-cols-2 gap-4">
+                <MetricBox 
+                  icon={<Clock size={14} />} 
+                  label="Offline Crack Time" 
+                  value={assessment.crack_times_display.offline_slow_hashing_1e4_per_second} 
+                />
+                <MetricBox 
+                  icon={<Zap size={14} />} 
+                  label="Length (NIST)" 
+                  value={`${password.length} Chars`}
+                  pass={password.length >= 12}
+                />
+              </div>
+
+              {/* Smart Feedback */}
+              {assessment.feedback.warning && (
+                <div className="text-xs bg-red-50 text-red-600 p-3 rounded-xl border border-red-100 flex gap-2 italic">
+                  <span>⚠️</span> {assessment.feedback.warning}
+                </div>
+              )}
+              
+              <div className="pt-2">
+                <p className={`text-sm font-semibold flex items-center gap-2 ${isISOCompliant ? "text-emerald-600" : "text-stone-400"}`}>
+                   <ShieldCheck size={16} />
+                   {isISOCompliant ? "Fully ISO/NIST Compliant" : "Analysis in progress..."}
+                </p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-
-        <div className="relative w-full">
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Type your password..."
-            className={`light w-full border-2 sm:border rounded-xl px-4 py-3 pr-24 sm:pr-16 ${!allChecklist ? "opacity-60 cursor-not-allowed" : ""}`}
-            data-light="bg-white text-stone-900"
-            data-dark="bg-stone-800 text-white"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            aria-label="Password input"
-            disabled={!allChecklist}
-          />
-
-          {/* icons container inside the input on the right */}
-          <div className="absolute inset-y-0 right-2 flex items-center gap-2 pr-1">
-            <button
-              type="button"
-              onClick={toggleShow}
-              className={`inline-flex items-center justify-center w-9 h-9 rounded-md border bg-white/40 backdrop-blur ${!allChecklist ? "opacity-60 cursor-not-allowed" : ""}`}
-              aria-pressed={showPassword}
-              aria-label={showPassword ? "Hide password" : "Show password"}
-              disabled={!allChecklist}
-            >
-                {showPassword ? (
-                  <EyeOff className="h-5 w-5" />
-                ) : (
-                  <Eye className="h-5 w-5" />
-                )}
-            </button>
-
-            <button
-              type="button"
-              onClick={copyToClipboard}
-              className={`inline-flex items-center justify-center w-9 h-9 rounded-md border ${copied ? "bg-emerald-50 border-emerald-200" : "bg-white/40"} backdrop-blur ${!allChecklist ? "opacity-60 cursor-not-allowed" : ""}`}
-              aria-label="Copy password"
-              disabled={!allChecklist}
-            >
-              <AnimatePresence initial={false}>
-                {copied ? (
-                  <motion.span
-                    key="copied"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.18 }}
-                    className="text-emerald-600"
-                  >
-                    <CopyCheck className="h-5 w-5" />
-                  </motion.span>
-                ) : (
-                  <motion.span
-                    key="copy"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.18 }}
-                    className="text-stone-800"
-                  >
-                    <CopyPlus className="h-5 w-5" />
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </button>
-          </div>
-
-          {copied && (
-            <span className="text-xs absolute right-24 top-1/2 -translate-y-1/2 text-emerald-600">Copied!</span>
-          )}
-        </div>
-
-        {!allChecklist && (
-          <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-            Complete all security checks before testing this password.
-          </p>
-        )}
       </div>
-
-      {/* Results */}
-      {password.length > 0 && (
-        <div className="space-y-3">
-          <StrengthLine label="12+ Characters" pass={meetsLength} />
-          <StrengthLine label="Uppercase Letters" pass={hasUpper} />
-          <StrengthLine label="Lowercase Letters" pass={hasLower} />
-          <StrengthLine label="Numbers" pass={hasNumber} />
-          <StrengthLine label="Symbols" pass={hasSymbol} />
-          <StrengthLine label="Not a Common Password" pass={notCommon} />
-
-          <p
-            className={`text-sm font-semibold pt-3 ${
-              isStrong
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-red-600 dark:text-red-400"
-            }`}
-          >
-            {isStrong
-              ? "This password meets ISO strength standards."
-              : "Password is weak or missing ISO requirements."}
-          </p>
-        </div>
-      )}
     </motion.div>
   );
 }
 
-function StrengthLine({ label, pass }) {
+// Sub-components for neatness
+function ComplianceCheck({ label, checked, onChange }) {
   return (
-    <div className="flex items-center justify-between text-sm">
-      <span>{label}</span>
-      <span
-        className={`text-xs px-2 py-1 rounded-full ${
-          pass
-            ? "bg-emerald-500/20 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
-            : "bg-red-500/20 text-red-700 dark:bg-red-500/10 dark:text-red-300"
-        }`}
-      >
-        {pass ? "Pass" : "Fail"}
-      </span>
+    <label className="flex items-center gap-3 text-sm cursor-pointer group">
+      <input type="checkbox" className="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900" checked={checked} onChange={onChange} />
+      <span className={`transition-colors ${checked ? "text-stone-900" : "text-stone-400 group-hover:text-stone-600"}`}>{label}</span>
+    </label>
+  );
+}
+
+function MetricBox({ icon, label, value, pass = true }) {
+  return (
+    <div className="p-3 rounded-2xl border border-stone-100 bg-white shadow-sm">
+      <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-stone-400 mb-1">
+        {icon} {label}
+      </div>
+      <div className={`text-xs font-bold ${!pass ? "text-red-500" : "text-stone-800"}`}>{value}</div>
     </div>
+  );
+}
+
+function IconButton({ children, onClick, disabled, success }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`p-2.5 rounded-xl border transition-all ${success ? "bg-emerald-50 border-emerald-200 text-emerald-600" : "bg-white border-stone-200 text-stone-600 hover:bg-stone-50"}`}
+    >
+      {children}
+    </button>
   );
 }

@@ -3,6 +3,7 @@ import PasswordHero from "./components/PasswordHero";
 import ISOHistoryCard from "./components/ISOHistoryCard";
 import ISORequirements from "./components/ISORequirements";
 import PasswordAssessmentTool from "./components/PasswordAssessmentTool";
+import SecurePasswordGenerator from "./components/SecurePasswordGenerator";
 import Footer from "./components/Footer";
 import Limitation from "./components/Limitations";
 import DefinitionOfTerms from "./components/DefinitionOfTerms";
@@ -19,12 +20,13 @@ function App() {
         <div className="px-6 sm:px-10 lg:px-20 -mt-8 mb-12 space-y-8">
           <ISOHistoryCard />
           <ISORequirements />
-
+  <SecurePasswordGenerator/>
           {/* Password assessment tool */}
           <div>
             <PasswordAssessmentTool />
           </div>
         </div>
+       
 
         {/* Limitations (first) and Definition of Terms (first ten definitions) */}
         <div className="px-6 sm:px-10 lg:px-20">
